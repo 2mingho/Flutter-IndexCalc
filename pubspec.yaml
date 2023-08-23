@@ -1,0 +1,33 @@
+name: indicecalc
+description: Calculadora de Indice universitario (Funciona para el itla sin ninguna modificacion)
+
+publish_to: 'none'
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.2
+  path_provider: ^2.1.0
+  sqflite: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
