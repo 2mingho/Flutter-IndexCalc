@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Calculadora de Índice Académico',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.light, // Modo claro por defecto
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark, // Modo oscuro
+        useMaterial3: true,
+      ),
+      home: HomePage(),
     );
   }
 }
@@ -49,108 +52,143 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculadora de Índice Académico'),
+        title: Text('Calculadora de Índice Académico'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Nombre de la materia'),
-              onChanged: (value) {
-                setState(() {
-                  _currentCourseName = value;
-                });
-              },
-              initialValue: _currentCourseName,
-            ),
-            DropdownButton<String>(
-              value: _currentGrade,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _currentGrade = newValue!;
-                });
-              },
-              items: <String>['A', 'B', 'C', 'R', 'F']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            DropdownButton<int>(
-              value: _currentCredits,
-              onChanged: (int? newValue) {
-                setState(() {
-                  _currentCredits = newValue!;
-                });
-              },
-              items: _creditOptions.map<DropdownMenuItem<int>>((int value) {
-                return DropdownMenuItem<int>(
-                  value: value,
-                  child: Text(value.toString()),
-                );
-              }).toList(),
-            ),
-            ElevatedButton(
-              onPressed: _canAddCourse() ? _addCourse : null,
-              child: const Text('Agregar Materia'),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Materia')),
-                  DataColumn(label: Text('Calificación')),
-                  DataColumn(label: Text('Eliminar')),
-                ],
-                rows: _courses.map((course) {
-                  Color color;
-                  if (course.grade == 'A') {
-                    color = Colors.green;
-                  } else if (course.grade == 'B') {
-                    color = Colors.blue;
-                  } else if (course.grade == 'C') {
-                    color = Colors.yellow;
-                  } else if (course.grade == 'F') {
-                    color = Colors.red;
-                  } else {
-                    color = Colors.black;
-                  }
-
-                  return DataRow(
-                    cells: [
-                      DataCell(
-                          Text(course.name, style: TextStyle(color: color))),
-                      DataCell(
-                          Text(course.grade, style: TextStyle(color: color))),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              _courses.remove(course);
-                            });
-                          },
-                        ),
-                      ),
-                    ],
+        // Modificar el color de fondo en función del modo activo
+        child: Container(
+          color: Theme.of(context).backgroundColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ...
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Nombre de la materia',
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _currentCourseName = value;
+                  });
+                },
+                initialValue: _currentCourseName,
+              ),
+              DropdownButton<String>(
+                value: _currentGrade,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _currentGrade = newValue!;
+                  });
+                },
+                items: <String>['A', 'B', 'C', 'R', 'F']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        )),
                   );
                 }).toList(),
               ),
-            ),
-            ElevatedButton(
-              onPressed:
-                  _courses.isNotEmpty ? () => _calculateIndex(_courses) : null,
-              child: const Text('Calcular Índice'),
-            ),
-            Text(
-              'Índice Calculado: ${_calculatedIndex.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 20),
-            ),
-          ],
+              DropdownButton<int>(
+                value: _currentCredits,
+                onChanged: _currentCourseName.isNotEmpty
+                    ? (int? newValue) {
+                        setState(() {
+                          _currentCredits = newValue!;
+                        });
+                      }
+                    : null,
+                items: _creditOptions.map<DropdownMenuItem<int>>((int value) {
+                  return DropdownMenuItem<int>(
+                    value: value,
+                    child: Text(value.toString(),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        )),
+                  );
+                }).toList(),
+                hint: Text(
+                  _currentCredits > 0
+                      ? '$_currentCredits créditos'
+                      : 'Créditos',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _canAddCourse() ? _addCourse : null,
+                child: const Text('Agregar Materia'),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: [
+                    DataColumn(label: Text('Materia')),
+                    DataColumn(label: Text('Calificación')),
+                    DataColumn(label: Text('C')),
+                    DataColumn(label: Text('Eliminar')),
+                  ],
+                  columnSpacing: 24.0,
+                  rows: _courses.map((course) {
+                    Color color;
+                    if (course.grade == 'A') {
+                      color = Colors.green;
+                    } else if (course.grade == 'B') {
+                      color = Colors.blue;
+                    } else if (course.grade == 'C') {
+                      color = Colors.yellow;
+                    } else if (course.grade == 'F') {
+                      color = Colors.red;
+                    } else {
+                      color = Colors.black;
+                    }
+
+                    return DataRow(
+                      cells: [
+                        DataCell(
+                          Text(course.name, style: TextStyle(color: color)),
+                        ),
+                        DataCell(
+                          Text(course.grade, style: TextStyle(color: color)),
+                        ),
+                        DataCell(
+                          Text(course.credits.toString(),
+                              style: TextStyle(color: color)),
+                        ),
+                        DataCell(
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                _courses.remove(course);
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _courses.isNotEmpty
+                    ? () => _calculateIndex(_courses)
+                    : null,
+                child: const Text('Calcular Índice'),
+              ),
+              Text(
+                'Índice Calculado: ${_calculatedIndex.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 20),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -161,7 +199,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool _canAddCourse() {
-    return _currentCourseName.isNotEmpty;
+    return _currentCourseName.isNotEmpty && _currentCredits > 0;
   }
 
   void _addCourse() {
