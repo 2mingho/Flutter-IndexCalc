@@ -97,24 +97,22 @@ class _HomePageState extends State<HomePage> {
               ),
               DropdownButton<int>(
                 value: _currentCredits,
-                onChanged: _currentCourseName.isNotEmpty
-                    ? (int? newValue) {
-                        setState(() {
-                          _currentCredits = newValue!;
-                        });
-                      }
-                    : null,
+                onChanged: (int? newValue) {
+                  setState(() {
+                    _currentCredits = newValue!;
+                  });
+                },
                 items: _creditOptions.map<DropdownMenuItem<int>>((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString(),
+                    child: Text(value == 0 ? '0' : value.toString(),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onBackground,
                         )),
                   );
                 }).toList(),
                 hint: Text(
-                  _currentCredits > 0
+                  _currentCredits >= 0
                       ? '$_currentCredits créditos'
                       : 'Créditos',
                   style: TextStyle(
@@ -147,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                     } else if (course.grade == 'F') {
                       color = Colors.red;
                     } else {
-                      color = Colors.black;
+                      color = Color.fromARGB(255, 255, 155, 98);
                     }
 
                     return DataRow(
@@ -199,7 +197,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool _canAddCourse() {
-    return _currentCourseName.isNotEmpty && _currentCredits > 0;
+    return _currentCourseName.isNotEmpty && _currentCredits >= 0;
   }
 
   void _addCourse() {
@@ -249,7 +247,10 @@ class _HomePageState extends State<HomePage> {
       } else if (course.grade == 'C') {
         totalScore += 2.0 * course.credits;
       }
-      totalCredits += course.credits;
+      if (course.grade != 'R') {
+        // Verificar si la materia no tiene el literal 'R'
+        totalCredits += course.credits;
+      }
     }
 
     if (totalCredits > 0) {
