@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
               ),
               DropdownButton<int>(
                 value: _currentCredits,
-                onChanged: _currentCourseName.isNotEmpty
+                onChanged: _currentCourseName.isNotEmpty || _currentCredits == 0
                     ? (int? newValue) {
                         setState(() {
                           _currentCredits = newValue!;
@@ -107,16 +107,13 @@ class _HomePageState extends State<HomePage> {
                 items: _creditOptions.map<DropdownMenuItem<int>>((int value) {
                   return DropdownMenuItem<int>(
                     value: value,
-                    child: Text(value.toString(),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                        )),
+                    child: Text(value == 0 ? '0' : value.toString()),
                   );
                 }).toList(),
                 hint: Text(
-                  _currentCredits > 0
-                      ? '$_currentCredits créditos'
-                      : 'Créditos',
+                  _currentCredits == 0
+                      ? 'Créditos'
+                      : '$_currentCredits créditos',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
@@ -131,9 +128,9 @@ class _HomePageState extends State<HomePage> {
                 child: DataTable(
                   columns: [
                     DataColumn(label: Text('Materia')),
-                    DataColumn(label: Text('Calificación')),
-                    DataColumn(label: Text('C')),
-                    DataColumn(label: Text('Eliminar')),
+                    DataColumn(label: Text('Literal')),
+                    DataColumn(label: Text('Creds')),
+                    DataColumn(label: Text('')),
                   ],
                   columnSpacing: 24.0,
                   rows: _courses.map((course) {
@@ -199,7 +196,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool _canAddCourse() {
-    return _currentCourseName.isNotEmpty && _currentCredits > 0;
+    return _currentCourseName.isNotEmpty &&
+        (_currentCredits == 0 || _currentCredits > 0);
   }
 
   void _addCourse() {
@@ -244,12 +242,16 @@ class _HomePageState extends State<HomePage> {
     for (var course in courses) {
       if (course.grade == 'A') {
         totalScore += 4.0 * course.credits;
+        totalCredits += course.credits;
       } else if (course.grade == 'B') {
         totalScore += 3.0 * course.credits;
+        totalCredits += course.credits;
       } else if (course.grade == 'C') {
         totalScore += 2.0 * course.credits;
+        totalCredits += course.credits;
+      } else if (course.grade == 'F') {
+        totalCredits += course.credits;
       }
-      totalCredits += course.credits;
     }
 
     if (totalCredits > 0) {
