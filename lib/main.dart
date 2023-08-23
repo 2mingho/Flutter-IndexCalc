@@ -242,18 +242,14 @@ class _HomePageState extends State<HomePage> {
     for (var course in courses) {
       if (course.grade == 'A') {
         totalScore += 4.0 * course.credits;
-        totalCredits += course.credits;
       } else if (course.grade == 'B') {
         totalScore += 3.0 * course.credits;
-        totalCredits += course.credits;
       } else if (course.grade == 'C') {
         totalScore += 2.0 * course.credits;
-        totalCredits += course.credits;
-      } else if (course.grade == 'F') {
-        totalCredits += course.credits;
       }
+
+      // Verificar si la materia no tiene el literal 'R'
       if (course.grade != 'R') {
-        // Verificar si la materia no tiene el literal 'R'
         totalCredits += course.credits;
       }
     }
